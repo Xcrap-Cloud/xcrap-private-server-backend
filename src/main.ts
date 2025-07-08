@@ -19,7 +19,7 @@ async function createSwaggerSpec(document: OpenAPIObject) {
 }
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, { rawBody: true })
+    const app = await NestFactory.create(AppModule)
 
     app.use(helmet())
     app.enableCors(configHelper.app.cors)

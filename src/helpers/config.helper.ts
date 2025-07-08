@@ -1,10 +1,9 @@
 import { ValidationPipe } from "@nestjs/common"
-
 import * as dotenv from "dotenv"
 
-const isProduction = process.env.NODE_ENV === "production"
-
 dotenv.config()
+
+const isProduction = process.env.NODE_ENV === "production"
 
 const configHelper = {
     isProduction: isProduction,

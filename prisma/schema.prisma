@@ -19,17 +19,15 @@ enum UserRole {
 }
 
 model User {
-    id               String   @id @default(uuid())
-    createdAt        DateTime @default(now()) @map("created_at")
-    updatedAt        DateTime @updatedAt @map("updated_at")
-    firebaseUid      String?  @unique @map("firebase_uid")
-    stripeCustomerId String?  @unique @map("stripe_customer_id")
-    apiKey           String   @unique @map("api_key")
-    name             String
-    role             UserRole @default(USER)
-    email            String   @unique
-    username         String   @unique
-    password         String
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    name      String
+    role      UserRole @default(USER)
+    email     String   @unique
+    username  String   @unique
+    apiKey    String   @unique @map("api_key")
+    password  String
 
     @@map("users")
 }
