@@ -27,6 +27,7 @@ const messagesHelper = {
     RESOURCE_NOT_FOUND: "O recurso solicitado não foi encontrado.",
     RESOURCE_ACCESS_UNAUTHORIZED: "Você não está autorizado a acessar este recurso.",
     CANNOT_DELETE_SELF: "Você não pode excluir a si mesmo!",
+    INVALID_API_KEY: "Chave de API inválida!",
 } satisfies Record<string, Message>
 
 export default messagesHelper

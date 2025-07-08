@@ -1,8 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common"
 import { createPaginator, PaginateOptions } from "prisma-pagination"
-import { InjectStripeClient } from "@golevelup/nestjs-stripe"
 import { Prisma, User } from "@prisma/client"
-import Stripe from "stripe"
 
 import { generateApiKey } from "../utils/generate-api-key"
 import { PrismaService } from "../prisma/prisma.service"
@@ -14,7 +12,6 @@ import { CreateUserDto } from "./dto/create-user.dto"
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectStripeClient() private readonly stripe: Stripe,
         private readonly prisma: PrismaService,
         private readonly cryptoService: CryptoService,
     ) {}

@@ -100,4 +100,14 @@ export class AuthService {
 
         return rest
     }
+
+    async validateApiKey(apiKey: string) {
+        const user = await this.usersService.findOneByApiKey(apiKey)
+
+        if (!user) {
+            return null
+        }
+
+        return user
+    }
 }
