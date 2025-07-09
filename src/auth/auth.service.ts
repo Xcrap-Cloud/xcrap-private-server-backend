@@ -82,11 +82,9 @@ export class AuthService {
     }
 
     async validateUser(email: string, password: string): Promise<UserWithoutSensitiveInfo | null> {
-        let user: User
+        const user = await this.usersService.safeFindOneByEmail(email)
 
-        try {
-            user = (await this.usersService.findOneByEmail(email)) as User
-        } catch (error) {
+        if (!user) {
             return null
         }
 
