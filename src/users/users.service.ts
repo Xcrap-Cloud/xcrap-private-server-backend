@@ -111,6 +111,18 @@ export class UsersService {
         return user
     }
 
+    async safeFindOneByEmail(email: string) {
+        try {
+            return await this.findOneByEmail(email)
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                return null
+            }
+
+            throw error
+        }
+    }
+
     async findOneByApiKey(apiKey: string) {
         const encryptedApiKey = this.cryptoService.encrypt(apiKey)
 
