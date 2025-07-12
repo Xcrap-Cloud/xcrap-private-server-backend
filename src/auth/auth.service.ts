@@ -18,7 +18,7 @@ export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
-        configService: ConfigService,
+        private readonly configService: ConfigService,
     ) {
         this.refreshSignExpiresIn = configService.getOrThrow<string>("REFRESH_SIGN_EXPIRES_IN")
     }
@@ -51,7 +51,9 @@ export class AuthService {
         let payload: JwtRefreshPayload
 
         try {
-            payload = this.jwtService.verify<JwtRefreshPayload>(refreshToken)
+            payload = this.jwtService.verify<JwtRefreshPayload>(refreshToken, {
+                secret: this.configService.getOrThrow<string>("JWT_PRIVATE_KEY"),
+            })
         } catch (error) {
             throw new UnauthorizedException(messagesHelper.INVALID_AUTHORIZATION_TOKEN)
         }
