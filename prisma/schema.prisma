@@ -19,15 +19,53 @@ enum UserRole {
 }
 
 model User {
-    id        String   @id @default(uuid())
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+    id        String    @id @default(uuid())
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime  @updatedAt @map("updated_at")
     name      String
-    role      UserRole @default(USER)
-    email     String   @unique
-    username  String   @unique
-    apiKey    String   @unique @map("api_key")
+    role      UserRole  @default(USER)
+    email     String    @unique
+    username  String    @unique
+    apiKey    String    @unique @map("api_key")
     password  String
+    scrapers  Scraper[]
+    clients   Client[]
 
     @@map("users")
+}
+
+enum ClientType {
+    http_core
+    axios
+    got_scraping
+}
+
+model Client {
+    id          String     @id @default(uuid())
+    createdAt   DateTime   @default(now()) @map("created_at")
+    updatedAt   DateTime   @updatedAt @map("updated_at")
+    name        String
+    type        ClientType
+    description String?
+    ownerId     String     @map("owner_id")
+    owner       User       @relation(fields: [ownerId], references: [id])
+    scrapers    Scraper[]
+
+    @@map("clients")
+}
+
+model Scraper {
+    id           String   @id @default(uuid())
+    createdAt    DateTime @default(now()) @map("created_at")
+    updatedAt    DateTime @updatedAt @map("updated_at")
+    name         String
+    defaultUrl   String?  @map("default_url")
+    description  String?
+    ownerId      String   @map("owner_id")
+    owner        User     @relation(fields: [ownerId], references: [id])
+    clientId     String   @map("client_id")
+    client       Client   @relation(fields: [clientId], references: [id])
+    parsingModel Json
+
+    @@map("scrapers")
 }

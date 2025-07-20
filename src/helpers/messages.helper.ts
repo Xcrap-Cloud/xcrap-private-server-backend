@@ -28,6 +28,9 @@ const messagesHelper = {
     RESOURCE_ACCESS_UNAUTHORIZED: "Você não está autorizado a acessar este recurso.",
     CANNOT_DELETE_SELF: "Você não pode excluir a si mesmo!",
     INVALID_API_KEY: "Chave de API inválida!",
+    REQUIRED_FIELD_MISSING: (field: string) => `O campo '${field}' é obrigatório e não foi fornecido!`,
+    PARSING_ERROR: "Erro ao analisar o conteúdo do recurso!",
+    REQUEST_FAILED: "A solicitação falhou por algum motivo!",
 } satisfies Record<string, Message>
 
 export default messagesHelper
