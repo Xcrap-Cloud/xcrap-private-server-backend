@@ -7,12 +7,10 @@ import {
     Param,
     Delete,
     Query,
-    ParseEnumPipe,
     DefaultValuePipe,
     ParseIntPipe,
     UseGuards,
 } from "@nestjs/common"
-
 import { ApiQuery } from "@nestjs/swagger"
 
 import { MultiAuthenticatedUser } from "../auth/interfaces/multi-authenticated-request.interface"
@@ -21,6 +19,7 @@ import { ExecuteOneDynamicScraperDto } from "./dto/execute-one-dynamic-scraper.d
 import { MinValueValidationPipe } from "../common/pipes/min-number.pipe"
 import { MaxValueValidationPipe } from "../common/pipes/max-number.pipe"
 import { CurrentUser } from "../auth/decorators/current-user.decorator"
+import { MultiAuthGuard } from "../auth/guards/multi-auth.guard"
 import { ExecuteScraperDto } from "./dto/execute-scraper.dto"
 import { UpdateScraperDto } from "./dto/update-scraper.dto"
 import { CreateScraperDto } from "./dto/create-scraper.dto"
@@ -28,7 +27,7 @@ import { ScrapersService } from "./scrapers.service"
 import configHelper from "../helpers/config.helper"
 
 @Controller("scrapers")
-// @UseGuards(MultiAuthGuard)
+@UseGuards(MultiAuthGuard)
 export class ScrapersController {
     constructor(private readonly scrapersService: ScrapersService) {}
 
