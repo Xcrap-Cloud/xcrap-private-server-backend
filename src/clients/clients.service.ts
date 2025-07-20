@@ -1,6 +1,6 @@
 import { createPaginator, PaginateOptions } from "prisma-pagination"
 import { Injectable, NotFoundException } from "@nestjs/common"
-import { Client, Prisma } from "@prisma/client"
+import { Client, ClientType, Prisma } from "@prisma/client"
 
 import { createClient } from "@xcrap/factory"
 
@@ -137,6 +137,16 @@ export class ClientsService {
         const httpClient = createClient({
             config: configHelper.factory.createClientConfig,
             type: client.type,
+            options: {},
+        })
+
+        return httpClient
+    }
+
+    async createDynamicHttpClient(type: string) {
+        const httpClient = createClient({
+            config: configHelper.factory.createClientConfig,
+            type: type as ClientType,
             options: {},
         })
 

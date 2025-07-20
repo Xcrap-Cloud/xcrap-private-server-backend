@@ -6,8 +6,8 @@ import {
     NotFoundException,
 } from "@nestjs/common"
 import { createPaginator, PaginateOptions } from "prisma-pagination"
+import { ParsingModel as FactoryParsingModel } from "@xcrap/factory"
 import { instanceToPlain } from "class-transformer"
-
 import { HttpResponse } from "@xcrap/core"
 
 import { ExecuteOneDynamicScraperDto } from "./dto/execute-one-dynamic-scraper.dto"
@@ -112,14 +112,75 @@ export class ScrapersService {
     }
 
     async executeOneDynamic(executeOneDynamicScraperDto: ExecuteOneDynamicScraperDto) {
-        return ""
+        const parsingModel = {
+            ...instanceToPlain(executeOneDynamicScraperDto.parsingModel),
+        } as FactoryParsingModel
+
+        const client = executeOneDynamicScraperDto.clientId
+            ? await this.clientsService.createHttpClient(executeOneDynamicScraperDto.clientId)
+            : await this.clientsService.createDynamicHttpClient(executeOneDynamicScraperDto.client!.type)
+
+        const response = await this.safeExecuteRequest(client, executeOneDynamicScraperDto.url)
+        const data = await this.safeExecuteParser(response, parsingModel)
+
+        return data
     }
 
     async update(id: string, updateScraperDto: UpdateScraperDto) {
-        return `This action updates a #${id} scraper`
+        const existingClient = await this.prisma.scraper.findUnique({
+            where: {
+                id: id,
+            },
+            select: {
+                id: true,
+            },
+        })
+
+        if (!existingClient) {
+            throw new NotFoundException(
+                messagesHelper.OBJECT_NOT_FOUND({
+                    name: "Scraper",
+                    property: "id",
+                    value: id,
+                }),
+            )
+        }
+
+        return await this.prisma.scraper.update({
+            where: {
+                id: id,
+            },
+            data: updateScraperDto,
+        })
     }
 
     async remove(id: string) {
-        return `This action removes a #${id} scraper`
+        const existingClient = await this.prisma.scraper.findUnique({
+            where: {
+                id: id,
+            },
+            select: {
+                id: true,
+            },
+        })
+
+        if (!existingClient) {
+            throw new NotFoundException(
+                messagesHelper.OBJECT_NOT_FOUND({
+                    name: "Scraper",
+                    property: "id",
+                    value: id,
+                }),
+            )
+        }
+
+        await this.prisma.scraper.delete({
+            where: {
+                id: id,
+            },
+            select: {
+                id: true,
+            },
+        })
     }
 }
