@@ -13,7 +13,12 @@ import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 
 import { IsQueryRequiredIfNested } from "../decorators/is-query-required-if-nested.decorator"
+import { IsRecordOfParsingField } from "../decorators/is-record-of-parsing-field.decorator"
 import { ParsingModelFieldType } from "../enums/parsing-model-field-type.enum"
+
+class CreateModelDto {
+    [key: string]: CreateParsingModelFieldDto
+}
 
 export class CreateParsingModelDto {
     @ApiProperty({ enum: ParsingModelFieldType, enumName: "ParsingModelFieldType" })
@@ -21,10 +26,10 @@ export class CreateParsingModelDto {
     type: ParsingModelFieldType
 
     @ApiProperty()
-    @IsObject()
-    @ValidateNested({ each: true })
-    @Type(() => CreateParsingModelFieldDto)
-    model: Record<string, CreateParsingModelFieldDto>
+    @IsRecordOfParsingField({
+        message: "model must be a Record<string, CreateParsingModelFieldDto>",
+    })
+    model: CreateModelDto
 }
 
 export class CreateParsingModelFieldDto {

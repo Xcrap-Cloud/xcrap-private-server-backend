@@ -3,12 +3,15 @@ import {
     BadRequestException,
     Injectable,
     InternalServerErrorException,
+    Logger,
     NotFoundException,
 } from "@nestjs/common"
 import { createPaginator, PaginateOptions } from "prisma-pagination"
 import { ParsingModel as FactoryParsingModel } from "@xcrap/factory"
+import { defaultUserAgent, HttpResponse } from "@xcrap/core"
 import { instanceToPlain } from "class-transformer"
-import { HttpResponse } from "@xcrap/core"
+
+import { Prisma, Scraper } from "@prisma/client"
 
 import { ExecuteOneDynamicScraperDto } from "./dto/execute-one-dynamic-scraper.dto"
 import { ExecuteScraperDto } from "./dto/execute-scraper.dto"
@@ -16,17 +19,23 @@ import { ClientsService } from "../clients/clients.service"
 import { UpdateScraperDto } from "./dto/update-scraper.dto"
 import { CreateScraperDto } from "./dto/create-scraper.dto"
 import { PrismaService } from "../prisma/prisma.service"
+import { ParserService } from "../parser/parser.service"
 import messagesHelper from "../helpers/messages.helper"
 
 @Injectable()
 export class ScrapersService {
+    private readonly logger = new Logger(ScrapersService.name)
+
     constructor(
         private readonly prisma: PrismaService,
         private readonly clientsService: ClientsService,
+        private readonly parserService: ParserService,
     ) {}
 
     async create(userId: string, createScraperDto: CreateScraperDto) {
         const { clientId, ...data } = createScraperDto
+
+        await this.clientsService.findOne(clientId)
 
         return await this.prisma.scraper.create({
             data: {
@@ -52,9 +61,25 @@ export class ScrapersService {
             perPage: perPage,
         })
 
-        return await paginate(this.prisma.scraper, {
+        return await paginate<Scraper, Prisma.ScraperFindManyArgs>(this.prisma.scraper, {
             orderBy: {
                 createdAt: "desc",
+            },
+            include: {
+                client: {
+                    select: {
+                        id: true,
+                        name: true,
+                        type: true,
+                    },
+                },
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                    },
+                },
             },
         })
     }
@@ -65,7 +90,20 @@ export class ScrapersService {
                 id: id,
             },
             include: {
-                client: true,
+                client: {
+                    select: {
+                        id: true,
+                        name: true,
+                        type: true,
+                    },
+                },
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                    },
+                },
             },
         })
 
@@ -81,17 +119,20 @@ export class ScrapersService {
         return scraper
     }
 
-    private async safeExecuteRequest(httpClient: any, url: string) {
+    private async safeExecuteRequest(httpClient: any, url: string): Promise<HttpResponse> {
         try {
             return await httpClient.fetch({ url: url })
-        } catch {
+        } catch (error) {
+            this.logger.error(`Failed to execute request for URL: ${url}`, error)
             throw new InternalServerErrorException(messagesHelper.REQUEST_FAILED)
         }
     }
 
     private async safeExecuteParser(response: HttpResponse, parsingModel: any) {
         try {
-        } catch {
+            return await this.parserService.parse(response, parsingModel)
+        } catch (error) {
+            this.logger.error(`Failed to execute parser for response: ${response}`, error)
             throw new BadGatewayException(messagesHelper.PARSING_ERROR)
         }
     }
@@ -104,11 +145,43 @@ export class ScrapersService {
             throw new BadRequestException(messagesHelper.REQUIRED_FIELD_MISSING("url"))
         }
 
-        const httpClient = await this.clientsService.createHttpClient(scraper.clientId)
-        const response = await this.safeExecuteRequest(httpClient, url)
-        const data = await this.safeExecuteParser(response, scraper.parsingModel)
+        const metadata: Record<string, any> = {}
 
-        return data
+        const httpClient = await this.clientsService.createHttpClient(scraper.clientId)
+        const requestStartTime = Date.now()
+        const response = await this.safeExecuteRequest(httpClient, url)
+        const requestEndTime = Date.now()
+
+        metadata.request = {
+            url: url,
+            startTime: requestStartTime,
+            endTime: requestEndTime,
+            duration: requestEndTime - requestStartTime,
+            hadRetries: response.hadRetries(),
+            attempts: response.attempts,
+            userAgent: httpClient.userAgent ?? defaultUserAgent,
+        }
+
+        metadata.response = {
+            status: response.status,
+            statusText: response.statusText,
+            contentType: response.getHeader("content-type"),
+        }
+
+        const parsingStartTime = Date.now()
+        const data = await this.safeExecuteParser(response, scraper.parsingModel)
+        const parsingEndTime = Date.now()
+
+        metadata.parsing = {
+            startTime: parsingStartTime,
+            endTime: parsingEndTime,
+            duration: parsingEndTime - parsingStartTime,
+        }
+
+        return {
+            metadata: metadata,
+            data: data,
+        }
     }
 
     async executeOneDynamic(executeOneDynamicScraperDto: ExecuteOneDynamicScraperDto) {
@@ -116,14 +189,46 @@ export class ScrapersService {
             ...instanceToPlain(executeOneDynamicScraperDto.parsingModel),
         } as FactoryParsingModel
 
-        const client = executeOneDynamicScraperDto.clientId
+        const httpClient = executeOneDynamicScraperDto.clientId
             ? await this.clientsService.createHttpClient(executeOneDynamicScraperDto.clientId)
             : await this.clientsService.createDynamicHttpClient(executeOneDynamicScraperDto.client!.type)
 
-        const response = await this.safeExecuteRequest(client, executeOneDynamicScraperDto.url)
-        const data = await this.safeExecuteParser(response, parsingModel)
+        const metadata: Record<string, any> = {}
 
-        return data
+        const requestStartTime = Date.now()
+        const response = await this.safeExecuteRequest(httpClient, executeOneDynamicScraperDto.url)
+        const requestEndTime = Date.now()
+
+        metadata.request = {
+            url: executeOneDynamicScraperDto.url,
+            startTime: requestStartTime,
+            endTime: requestEndTime,
+            duration: requestEndTime - requestStartTime,
+            hadRetries: response.hadRetries(),
+            attempts: response.attempts,
+            userAgent: httpClient.userAgent ?? defaultUserAgent,
+        }
+
+        metadata.response = {
+            status: response.status,
+            statusText: response.statusText,
+            contentType: response.getHeader("content-type"),
+        }
+
+        const parsingStartTime = Date.now()
+        const data = await this.safeExecuteParser(response, parsingModel)
+        const parsingEndTime = Date.now()
+
+        metadata.parsing = {
+            startTime: parsingStartTime,
+            endTime: parsingEndTime,
+            duration: parsingEndTime - parsingStartTime,
+        }
+
+        return {
+            metadata: metadata,
+            data: data,
+        }
     }
 
     async update(id: string, updateScraperDto: UpdateScraperDto) {
@@ -151,6 +256,22 @@ export class ScrapersService {
                 id: id,
             },
             data: updateScraperDto,
+            include: {
+                client: {
+                    select: {
+                        id: true,
+                        name: true,
+                        type: true,
+                    },
+                },
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                    },
+                },
+            },
         })
     }
 

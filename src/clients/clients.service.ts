@@ -26,6 +26,15 @@ export class ClientsService {
                     },
                 },
             },
+            include: {
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                    },
+                },
+            },
         })
     }
 
@@ -44,6 +53,7 @@ export class ClientsService {
                     select: {
                         id: true,
                         name: true,
+                        username: true,
                     },
                 },
             },
@@ -98,6 +108,15 @@ export class ClientsService {
                 type: updateClientDto.type,
                 description: updateClientDto.description,
             },
+            include: {
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                    },
+                },
+            },
         })
     }
 
@@ -137,7 +156,9 @@ export class ClientsService {
         const httpClient = createClient({
             config: configHelper.factory.createClientConfig,
             type: client.type,
-            options: {},
+            options: {
+                retries: 3,
+            },
         })
 
         return httpClient
@@ -147,7 +168,9 @@ export class ClientsService {
         const httpClient = createClient({
             config: configHelper.factory.createClientConfig,
             type: type as ClientType,
-            options: {},
+            options: {
+                retries: 3,
+            },
         })
 
         return httpClient

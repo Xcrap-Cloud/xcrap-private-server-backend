@@ -74,7 +74,6 @@ export class UsersService {
                 id: id,
             },
             omit: {
-                apiKey: true,
                 password: true,
             },
         })
@@ -88,7 +87,12 @@ export class UsersService {
             )
         }
 
-        return user
+        const decryptedApiKey = this.cryptoService.decrypt(user.apiKey)
+
+        return {
+            ...user,
+            apiKey: decryptedApiKey,
+        }
     }
 
     async findOneByEmail(email: string) {

@@ -27,6 +27,7 @@ export class AuthService {
         const accessPayload = {
             sub: user.id,
             email: user.email,
+            name: user.name,
             username: user.username,
             role: user.role,
         } satisfies JwtAccessPayload
@@ -68,6 +69,7 @@ export class AuthService {
             sub: user.id,
             email: user.email,
             username: user.username,
+            name: user.name,
             role: user.role,
         } satisfies JwtAccessPayload
 

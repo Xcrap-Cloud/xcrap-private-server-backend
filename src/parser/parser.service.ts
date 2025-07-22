@@ -18,7 +18,7 @@ export class ParserService {
             throw new BadRequestException(`No parser found for type: ${parsingModel.type}`)
         }
 
-        const parser = new parserConstructor(model)
+        const parser = new parserConstructor(response.text)
 
         if (parsingModel.type === "json") {
             return await parser.parseModel(model)

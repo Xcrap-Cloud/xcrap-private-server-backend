@@ -12,7 +12,6 @@ import {
     DefaultValuePipe,
     ParseIntPipe,
 } from "@nestjs/common"
-
 import { ApiQuery } from "@nestjs/swagger"
 
 import { MultiAuthenticatedUser } from "../auth/interfaces/multi-authenticated-request.interface"
@@ -26,6 +25,7 @@ import configHelper from "../helpers/config.helper"
 import { ClientsService } from "./clients.service"
 
 @Controller("clients")
+@UseGuards(MultiAuthGuard)
 export class ClientsController {
     constructor(private readonly clientsService: ClientsService) {}
 

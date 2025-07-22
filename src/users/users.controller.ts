@@ -32,6 +32,7 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Post()
+    @Roles(UserRole.ADMIN)
     async create(@Body() createUserDto: CreateUserDto) {
         return await this.usersService.create(createUserDto)
     }
@@ -75,6 +76,7 @@ export class UsersController {
     }
 
     @Get(":id")
+    @UseGuards(OwnershipGuardFactory("id"))
     async findOne(@Param("id", ParseUUIDPipe) id: string) {
         return await this.usersService.findOne(id)
     }
