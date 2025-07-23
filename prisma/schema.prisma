@@ -64,7 +64,7 @@ model Scraper {
     ownerId      String   @map("owner_id")
     owner        User     @relation(fields: [ownerId], references: [id])
     clientId     String   @map("client_id")
-    client       Client   @relation(fields: [clientId], references: [id])
+    client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
     parsingModel Json
 
     @@map("scrapers")
