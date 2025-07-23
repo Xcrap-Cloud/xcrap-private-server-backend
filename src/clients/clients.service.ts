@@ -1,7 +1,6 @@
 import { createPaginator, PaginateOptions } from "prisma-pagination"
 import { Injectable, NotFoundException } from "@nestjs/common"
 import { Client, ClientType, Prisma } from "@prisma/client"
-
 import { createClient } from "@xcrap/factory"
 
 import { UpdateClientDto } from "./dto/update-client.dto"
@@ -65,6 +64,15 @@ export class ClientsService {
             where: {
                 id: id,
             },
+            include: {
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                    },
+                },
+            }
         })
 
         if (!client) {
