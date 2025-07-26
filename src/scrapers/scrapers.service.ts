@@ -10,7 +10,6 @@ import { createPaginator, PaginateOptions } from "prisma-pagination"
 import { ParsingModel as FactoryParsingModel } from "@xcrap/factory"
 import { defaultUserAgent, HttpResponse } from "@xcrap/core"
 import { instanceToPlain } from "class-transformer"
-
 import { Prisma, Scraper } from "@prisma/client"
 
 import { ExecuteOneDynamicScraperDto } from "./dto/execute-one-dynamic-scraper.dto"
@@ -121,7 +120,7 @@ export class ScrapersService {
 
     private async safeExecuteRequest(httpClient: any, url: string): Promise<HttpResponse> {
         try {
-            return await httpClient.fetch({ url: url })
+            return await httpClient.fetch({ url: url, maxRetries: 3 })
         } catch (error) {
             this.logger.error(`Failed to execute request for URL: ${url}`, error)
             throw new InternalServerErrorException(messagesHelper.REQUEST_FAILED)

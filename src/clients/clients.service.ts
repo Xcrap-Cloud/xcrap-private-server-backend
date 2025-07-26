@@ -72,7 +72,7 @@ export class ClientsService {
                         username: true,
                     },
                 },
-            }
+            },
         })
 
         if (!client) {
@@ -164,9 +164,7 @@ export class ClientsService {
         const httpClient = createClient({
             config: configHelper.factory.createClientConfig,
             type: client.type,
-            options: {
-                retries: 3,
-            },
+            options: {},
         })
 
         return httpClient
@@ -176,9 +174,7 @@ export class ClientsService {
         const httpClient = createClient({
             config: configHelper.factory.createClientConfig,
             type: type as ClientType,
-            options: {
-                retries: 3,
-            },
+            options: {},
         })
 
         return httpClient

@@ -38,6 +38,7 @@ enum ClientType {
     http_core
     axios
     got_scraping
+    impit
 }
 
 model Client {

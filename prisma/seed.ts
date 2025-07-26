@@ -40,6 +40,7 @@ const adminId = env("ADMIN_DEFAULT_ID")
 const axiosClientId = "3a58a5e2-9b08-4860-b8bd-501898d57317"
 const gotScrapingClientId = "49f7f7a8-8634-4dfa-b12e-15af53ba532b"
 const httpCoreClientId = "d19a8915-c110-456e-8d9d-8097283a2097"
+const impitClientId = "98544e59-2770-48fe-a4c8-1d5070104c88"
 
 const clients: Prisma.ClientCreateInput[] = [
     {
@@ -75,6 +76,17 @@ const clients: Prisma.ClientCreateInput[] = [
             },
         },
     },
+    {
+        id: impitClientId,
+        type: "impit",
+        name: "Impit Client",
+        description: "Basic Impit Client",
+        owner: {
+            connect: {
+                id: adminId,
+            },
+        },
+    },
 ]
 
 const scrapers: Prisma.ScraperCreateInput[] = [
@@ -83,7 +95,7 @@ const scrapers: Prisma.ScraperCreateInput[] = [
         description: "Metadata Scraper",
         client: {
             connect: {
-                id: httpCoreClientId,
+                id: impitClientId,
             },
         },
         defaultUrl: "https://google.com",
@@ -103,107 +115,107 @@ const scrapers: Prisma.ScraperCreateInput[] = [
                             title: {
                                 query: "title",
                                 extractor: "innerText",
-                                default: "null",
+                                default: null,
                             },
                             description: {
                                 query: "meta[name='description']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             keywords: {
                                 query: "meta[name='keywords']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             author: {
                                 query: "meta[name='author'], meta[property='article:author']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             viewport: {
                                 query: "meta[name='viewport']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             charset: {
                                 query: "meta[charset]",
                                 extractor: "attribute:charset",
-                                default: "null",
+                                default: null,
                             },
                             robots: {
                                 query: "meta[name='robots']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             ogTitle: {
                                 query: "meta[property='og:title']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             ogDescription: {
                                 query: "meta[property='og:description']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             ogType: {
                                 query: "meta[property='og:type']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             ogImage: {
                                 query: "meta[property='og:image']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             ogUrl: {
                                 query: "meta[property='og:url']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             twitterCard: {
                                 query: "meta[name='twitter:card']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             twitterTitle: {
                                 query: "meta[name='twitter:title']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             twitterDescription: {
                                 query: "meta[name='twitter:description']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             twitterImage: {
                                 query: "meta[name='twitter:image']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             canonical: {
                                 query: "link[rel='canonical']",
                                 extractor: "attribute:href",
-                                default: "null",
+                                default: null,
                             },
                             favicon: {
                                 query: "link[rel='icon'], link[rel='shortcut icon']",
                                 extractor: "attribute:href",
-                                default: "null",
+                                default: null,
                             },
                             themeColor: {
                                 query: "meta[name='theme-color']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             contentLanguage: {
                                 query: "meta[http-equiv='content-language']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                             contentType: {
                                 query: "meta[http-equiv='content-type']",
                                 extractor: "attribute:content",
-                                default: "null",
+                                default: null,
                             },
                         },
                     },

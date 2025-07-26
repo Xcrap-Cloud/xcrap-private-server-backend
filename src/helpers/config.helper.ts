@@ -54,6 +54,7 @@ import {
 } from "@xcrap/parser"
 import { CreateClientConfig, CreateParsingModelConfig } from "@xcrap/factory"
 import { GotScrapingClient } from "@xcrap/got-scraping-client"
+import { ImpitClient } from "@xcrap/impit-client"
 import { AxiosClient } from "@xcrap/axios-client"
 import { ValidationPipe } from "@nestjs/common"
 import { HttpClient } from "@xcrap/core"
@@ -172,6 +173,7 @@ const configHelper = {
                 got_scraping: GotScrapingClient,
                 axios: AxiosClient,
                 http_core: HttpClient,
+                impit: ImpitClient,
             },
         } satisfies CreateClientConfig<any>,
     },
